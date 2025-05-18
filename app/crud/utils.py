@@ -3,14 +3,14 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas import CharityProjectDB, DonationDB
-from . import charity_project_crud, donation_crud
 
 
 async def donate(
         session: AsyncSession,
         project: CharityProjectDB = None,
         donation: DonationDB = None,
-):
+) -> None:
+    from . import charity_project_crud, donation_crud
     if project:
         all_donations = await donation_crud.get_all(session)
         await invest_amount(project, all_donations)
@@ -21,7 +21,7 @@ async def donate(
     await session.refresh(project or donation)
 
 
-async def invest_amount(new_obj, db_objs):
+async def invest_amount(new_obj, db_objs) -> None:
     for db_obj in db_objs:
         if db_obj.fully_invested:
             continue
@@ -37,7 +37,7 @@ async def invest_amount(new_obj, db_objs):
             break
 
 
-async def update_obj_status(obj):
+async def update_obj_status(obj) -> None:
     obj.fully_invested = (obj.full_amount == obj.invested_amount)
     if obj.fully_invested:
         obj.close_date = datetime.utcnow()

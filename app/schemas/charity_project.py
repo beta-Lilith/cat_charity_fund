@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, Extra, Field, PositiveInt, root_validator, validator
+from pydantic import BaseModel, Extra, Field, PositiveInt, root_validator
 
 
 NAME_MIN_LENGTH = 1
@@ -49,7 +49,9 @@ class CharityProjectUpdate(CharityProjectBase):
     full_amount: Optional[PositiveInt]
 
     @root_validator(pre=True)
-    def field_cant_be_null(cls, values):
+    def field_cant_be_null(
+        cls, values: Dict[str, Union[str, int]],
+    ) -> Optional[Dict[str, Union[str, int]]]:
         for field, value in values.items():
             if value is None:
                 raise ValueError(FIELD_CANT_BE_NULL.format(field=field))

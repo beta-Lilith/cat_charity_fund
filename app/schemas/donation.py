@@ -25,6 +25,7 @@ class DonationShortDB(DonationCreate):
 
 
 class DonationDB(DonationShortDB):
+    user_id: int
     invested_amount: int
     fully_invested: bool
     close_date: Optional[datetime]

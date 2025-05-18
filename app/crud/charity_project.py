@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
+from app.crud.utils import update_obj_status
 from app.models import CharityProject
 from app.schemas import CharityProjectUpdate
 
@@ -25,14 +26,14 @@ class CRUDCharityProject(CRUDBase):
             self,
             project: CharityProject,
             new_data: CharityProjectUpdate,
-            session: AsyncSession
-    ):
+            session: AsyncSession,
+    ) -> CharityProject:
         db_data = jsonable_encoder(project)
         new_data = new_data.dict(exclude_unset=True)
         for field in db_data:
             if field in new_data:
                 setattr(project, field, new_data[field])
-        # session.add(project)
+        await update_obj_status(project)
         await session.commit()
         await session.refresh(project)
         return project
@@ -40,8 +41,8 @@ class CRUDCharityProject(CRUDBase):
     async def delete(
             self,
             project: CharityProject,
-            session: AsyncSession
-    ):
+            session: AsyncSession,
+    ) -> CharityProject:
         await session.delete(project)
         await session.commit()
         return project
