@@ -54,7 +54,9 @@ uvicorn app.main:app --reload
 Готово!  
 
 ## ДОКУМЕНТАЦИЯ к API  
-Доступна по [адресу](http://127.0.0.1:8000/docs).  
+Доступна по адресам:  
+[Swagger](http://127.0.0.1:8000/docs)  
+[Redoc](http://127.0.0.1:8000/redoc)  
 
 ## АВТОР  
 Оскомова Ксения ([github](https://github.com/beta-Lilith))

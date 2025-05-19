@@ -1,9 +1,11 @@
 from typing import Optional
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
+from app.services.utils import update_status
 
 
 class CRUDBase:
@@ -30,17 +32,61 @@ class CRUDBase:
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
-    async def create(
+    async def get_opened_obj(
+        self,
+        session: AsyncSession,
+    ):
+        opened_obj = await session.execute(
+            select(self.model).where(
+                self.model.fully_invested == False  # noqa
+            )
+        )
+        return opened_obj.scalars().all()
+
+    async def save_to_db(
             self,
             obj,
             session: AsyncSession,
-            user: Optional[User] = None,
     ):
-        obj_data = obj.dict()
+        await session.commit()
+        await session.refresh(obj)
+
+    async def create(
+            self,
+            new_obj,
+            session: AsyncSession,
+            user: Optional[User] = None,
+            save_to_db: bool = True,
+    ):
+        obj_data = new_obj.dict()
         if user:
             obj_data['user_id'] = user.id
-        db_obj = self.model(**obj_data)
-        session.add(db_obj)
+        obj = self.model(**obj_data)
+        session.add(obj)
+        if save_to_db:
+            await self.save_to_db(obj, session)
+        return obj
+
+    async def update(
+            self,
+            obj,
+            new_data,
+            session: AsyncSession,
+    ):
+        db_data = jsonable_encoder(obj)
+        new_data = new_data.dict(exclude_unset=True)
+        for field in db_data:
+            if field in new_data:
+                setattr(obj, field, new_data[field])
+        update_status(obj)
+        await self.save_to_db(obj, session)
+        return obj
+
+    async def delete(
+            self,
+            obj,
+            session: AsyncSession,
+    ):
+        await session.delete(obj)
         await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+        return obj

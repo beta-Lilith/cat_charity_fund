@@ -9,8 +9,8 @@ from app.api.validators import (
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud import charity_project_crud
-from app.crud.utils import donate
+from app.crud import charity_project_crud, donation_crud
+from app.services.utils import donate
 from app.schemas import (
     CharityProjectCreate, CharityProjectDB, CharityProjectUpdate,
 )
@@ -42,8 +42,14 @@ async def create_charity_project(
     session: AsyncSession = Depends(get_async_session),
 ):
     await check_name_duplicate(project.name, session)
-    new_project = await charity_project_crud.create(project, session)
-    await donate(session, project=new_project)
+    new_project = await charity_project_crud.create(
+        project,
+        session,
+        save_to_db=False,
+    )
+    opened_donations = await donation_crud.get_opened_obj(session)
+    donate(target=new_project, sources=opened_donations)
+    await charity_project_crud.save_to_db(new_project, session)
     return new_project
 
 

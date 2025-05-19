@@ -3,12 +3,20 @@ from sqlalchemy import Column, ForeignKey, Integer, Text
 from app.models.base import ProjectDonationBase
 
 
-USER_ID_FK_NAME = 'fk_donation_user_id_user'
+DONATION_REPR = (
+    '{super}'
+    'Комментарий: {comment}\n'
+    'Создал user_id: {user_id}\n'
+)
 
 
 class Donation(ProjectDonationBase):
     comment = Column(Text)
-    user_id = Column(Integer, ForeignKey(
-        'user.id',
-        name=USER_ID_FK_NAME,
-    ))
+    user_id = Column(Integer, ForeignKey('user.id'))
+
+    def __repr__(self):
+        return DONATION_REPR.format(
+            super=super().__repr__(),
+            comment=self.comment,
+            user_id=self.user_id,
+        )
