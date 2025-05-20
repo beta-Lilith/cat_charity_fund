@@ -45,11 +45,13 @@ class CRUDBase:
 
     async def save_to_db(
             self,
-            obj,
+            *args,
             session: AsyncSession,
     ):
+        session.add_all(args)
         await session.commit()
-        await session.refresh(obj)
+        for arg in args:
+            await session.refresh(arg)
 
     async def create(
             self,
@@ -58,13 +60,15 @@ class CRUDBase:
             user: Optional[User] = None,
             save_to_db: bool = True,
     ):
-        obj_data = new_obj.dict()
+        data = new_obj.dict()
         if user:
-            obj_data['user_id'] = user.id
-        obj = self.model(**obj_data)
-        session.add(obj)
+            data['user_id'] = user.id
+        obj = self.model(**data)
         if save_to_db:
-            await self.save_to_db(obj, session)
+            await self.save_to_db(obj, session=session)
+        else:
+            session.add(obj)
+            await session.flush()
         return obj
 
     async def update(
@@ -79,7 +83,7 @@ class CRUDBase:
             if field in new_data:
                 setattr(obj, field, new_data[field])
         update_status(obj)
-        await self.save_to_db(obj, session)
+        await self.save_to_db(obj, session=session)
         return obj
 
     async def delete(

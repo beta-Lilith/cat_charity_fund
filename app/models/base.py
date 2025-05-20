@@ -20,13 +20,12 @@ PROJECT_DONATION_REPR = (
 class ProjectDonationBase(Base):
     __abstract__ = True
     __table_args__ = (
-        CheckConstraint('invested_amount <= full_amount',
-                        name='invested_amount_le_full_amount'),
-        CheckConstraint('invested_amount >= 0',
-                        name='invested_amount_ge_0'),
+        CheckConstraint('0 <= invested_amount <= full_amount',
+                        name='invested_amount_is_valid'),
         CheckConstraint('full_amount >= 0',
                         name='full_amount_ge_0'),
     )
+
     full_amount = Column(Integer, nullable=False)
     invested_amount = Column(Integer, default=DEFAULT_INVESTED_AMOUNT)
     fully_invested = Column(Boolean, default=False)

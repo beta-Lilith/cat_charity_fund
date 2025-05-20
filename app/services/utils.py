@@ -1,15 +1,12 @@
 from datetime import datetime
-from typing import Union
 
-from app.models import CharityProject, Donation
+from app.models import ProjectDonationBase
 
 
-def donate(
-        target: Union[CharityProject, Donation],
-        sources: Union[list[CharityProject], list[Donation]],
-) -> None:
-    target.invested_amount = (0 if target.invested_amount is None  # Заглушка
-                              else target.invested_amount)         # для тестов
+def investment(
+        target: ProjectDonationBase,
+        sources: list[ProjectDonationBase],
+) -> list[ProjectDonationBase]:
     for source in sources:
         min_amount = min(
             target.full_amount - target.invested_amount,
@@ -20,9 +17,10 @@ def donate(
             update_status(obj)
         if target.fully_invested:
             break
+    return sources
 
 
-def update_status(obj: Union[CharityProject, Donation]) -> None:
+def update_status(obj: ProjectDonationBase) -> None:
     obj.fully_invested = (obj.full_amount == obj.invested_amount)
     if obj.fully_invested:
         obj.close_date = datetime.utcnow()

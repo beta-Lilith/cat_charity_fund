@@ -10,7 +10,7 @@ from app.api.validators import (
 from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.crud import charity_project_crud, donation_crud
-from app.services.utils import donate
+from app.services.utils import investment
 from app.schemas import (
     CharityProjectCreate, CharityProjectDB, CharityProjectUpdate,
 )
@@ -48,8 +48,11 @@ async def create_charity_project(
         save_to_db=False,
     )
     opened_donations = await donation_crud.get_opened_obj(session)
-    donate(target=new_project, sources=opened_donations)
-    await charity_project_crud.save_to_db(new_project, session)
+    await charity_project_crud.save_to_db(
+        new_project,
+        *investment(target=new_project, sources=opened_donations),
+        session=session,
+    )
     return new_project
 
 
