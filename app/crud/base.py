@@ -43,16 +43,6 @@ class CRUDBase:
         )
         return opened_obj.scalars().all()
 
-    async def save_to_db(
-            self,
-            *args,
-            session: AsyncSession,
-    ):
-        session.add_all(args)
-        await session.commit()
-        for arg in args:
-            await session.refresh(arg)
-
     async def create(
             self,
             new_obj,
@@ -64,10 +54,11 @@ class CRUDBase:
         if user:
             data['user_id'] = user.id
         obj = self.model(**data)
+        session.add(obj)
         if save_to_db:
-            await self.save_to_db(obj, session=session)
+            await session.commit()
+            await session.refresh(obj)
         else:
-            session.add(obj)
             await session.flush()
         return obj
 
@@ -83,7 +74,9 @@ class CRUDBase:
             if field in new_data:
                 setattr(obj, field, new_data[field])
         update_status(obj)
-        await self.save_to_db(obj, session=session)
+        session.add(obj)
+        await session.commit()
+        await session.refresh(obj)
         return obj
 
     async def delete(

@@ -7,6 +7,7 @@ def investment(
         target: ProjectDonationBase,
         sources: list[ProjectDonationBase],
 ) -> list[ProjectDonationBase]:
+    updated_sources = list()
     for source in sources:
         min_amount = min(
             target.full_amount - target.invested_amount,
@@ -15,9 +16,10 @@ def investment(
         for obj in (target, source):
             obj.invested_amount += min_amount
             update_status(obj)
+        updated_sources.append(source)
         if target.fully_invested:
             break
-    return sources
+    return updated_sources
 
 
 def update_status(obj: ProjectDonationBase) -> None:
