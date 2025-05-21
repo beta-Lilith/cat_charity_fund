@@ -7,7 +7,7 @@ def investment(
         target: ProjectDonationBase,
         sources: list[ProjectDonationBase],
 ) -> list[ProjectDonationBase]:
-    updated_sources = list()
+    updated_sources = []
     for source in sources:
         min_amount = min(
             target.full_amount - target.invested_amount,
