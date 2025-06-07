@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     token_uri: Optional[str] = None
     auth_provider_x509_cert_url: Optional[str] = None
     client_x509_cert_url: Optional[str] = None
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
 
     class Config:
         env_file = '.env'
