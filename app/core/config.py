@@ -1,9 +1,9 @@
 from typing import Optional
 
 from pydantic import BaseSettings, EmailStr
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv(override=True)
+# load_dotenv(override=True)  фикс локальной ошибки с VsCode
 
 
 class Settings(BaseSettings):
