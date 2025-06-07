@@ -6,14 +6,15 @@ from mixer.backend.sqlalchemy import Mixer as _mixer
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from app.main import app  # noqa
 
-try:
-    from app.main import app  # noqa
-except (NameError, ImportError) as error:
-    raise AssertionError(
-        'При импорте объекта приложения `app` из модуля `app.main` '
-        f'возникло исключение:\n{type(error).__name__}: {error}.'
-    )
+# try:
+#     from app.main import app  # noqa
+# except (NameError, ImportError) as error:
+#     raise AssertionError(
+#         'При импорте объекта приложения `app` из модуля `app.main` '
+#         f'возникло исключение:\n{type(error).__name__}: {error}.'
+#     )
 
 try:
     from app.core.db import Base, get_async_session  # noqa
